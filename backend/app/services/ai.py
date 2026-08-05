@@ -25,11 +25,12 @@ _openai_client = None
 _gemini_client = None
 
 # مدل‌های جایگزین Gemini — اگر مدل تنظیم‌شده در دسترس نبود، به ترتیب امتحان می‌شوند
+# (فلش-لایت اول است چون سریع است و برای کاربران جدید موجود؛ gemini-2.5-flash منسوخ شده)
 GEMINI_FALLBACK_MODELS = [
-    "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
     "gemini-3-flash",
     "gemini-3.5-flash",
+    "gemini-2.5-flash",
 ]
 
 

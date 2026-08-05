@@ -15,12 +15,12 @@ class Settings(BaseSettings):
     # ── هوش مصنوعی ─────────────────────────────────────────
     ai_provider: str = "gemini"              # gemini (رایگان، پیشنهادی) | openai
     temperature: float = 0.7
-    max_tokens: int = 1500                   # حداکثر توکن پاسخ — 1500 تا جواب کامل و نبریده باشه
+    max_tokens: int = 1000                   # حداکثر توکن پاسخ — 1000 = سریع و کامل (نه قطع‌شده)
     max_history_messages: int = 20           # حداکثر پیام‌های ارسالی به مدل (تاریخچه)
 
     # تامین‌کننده Gemini — رایگان، بدون کارت (کلید از aistudio.google.com)
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"   # نسخه Flash — سهمیه رایگان ~۱۵۰۰ در روز
+    gemini_model: str = "gemini-2.5-flash-lite"  # سریع و رایگان — موجود برای کاربران جدید (gemini-2.5-flash منسوخ شده)
 
     # تامین‌کننده OpenAI — گزینه پولی
     openai_api_key: str = ""
