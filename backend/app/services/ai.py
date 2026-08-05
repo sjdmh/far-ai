@@ -54,7 +54,7 @@ async def _openai_completion(messages: list[dict], *, json_mode: bool = False) -
         "model": settings.openai_model,
         "messages": messages,
         "temperature": settings.temperature,
-        "max_tokens": 700,
+        "max_tokens": settings.max_tokens,
     }
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
@@ -107,7 +107,7 @@ async def _gemini_completion(messages: list[dict], *, json_mode: bool = False) -
     config = genai_types.GenerateContentConfig(
         system_instruction=system or None,
         temperature=settings.temperature,
-        max_output_tokens=700,
+        max_output_tokens=settings.max_tokens,
         response_mime_type="application/json" if json_mode else "text/plain",
     )
 

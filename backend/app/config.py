@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     # ── هوش مصنوعی ─────────────────────────────────────────
     ai_provider: str = "gemini"              # gemini (رایگان، پیشنهادی) | openai
     temperature: float = 0.7
+    max_tokens: int = 1500                   # حداکثر توکن پاسخ — 1500 تا جواب کامل و نبریده باشه
     max_history_messages: int = 20           # حداکثر پیام‌های ارسالی به مدل (تاریخچه)
 
     # تامین‌کننده Gemini — رایگان، بدون کارت (کلید از aistudio.google.com)
