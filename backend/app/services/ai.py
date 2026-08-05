@@ -24,6 +24,14 @@ except ImportError:  # pragma: no cover
 _openai_client = None
 _gemini_client = None
 
+# مدل‌های جایگزین Gemini — اگر مدل تنظیم‌شده در دسترس نبود، به ترتیب امتحان می‌شوند
+GEMINI_FALLBACK_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-3-flash",
+    "gemini-3.5-flash",
+]
+
 
 # ═══ OpenAI ═══════════════════════════════════════════════════
 def _get_openai_client() -> "AsyncOpenAI":
@@ -83,6 +91,12 @@ def _to_gemini_messages(messages: list[dict]) -> tuple[str, list[dict]]:
     return system, contents
 
 
+def _is_model_error(exc: Exception) -> bool:
+    """آیا خطا مربوط به «مدل پیدا نشد / نامعتبر» است؟"""
+    text = str(exc).lower()
+    return any(word in text for word in ("model", "not found", "404", "does not exist", "invalid"))
+
+
 async def _gemini_completion(messages: list[dict], *, json_mode: bool = False) -> str:
     from google.genai import types as genai_types
 
@@ -97,20 +111,40 @@ async def _gemini_completion(messages: list[dict], *, json_mode: bool = False) -
         response_mime_type="application/json" if json_mode else "text/plain",
     )
 
-    # یک بار تلاش مجدد روی خطای ظرفیت (429)
-    for attempt in range(2):
-        try:
-            response = await client.aio.models.generate_content(
-                model=settings.gemini_model,
-                contents=contents,
-                config=config,
-            )
-            return (response.text or "").strip()
-        except Exception as exc:  # pragma: no cover
-            if attempt == 0 and "429" in str(exc):
-                await asyncio.sleep(2)
-                continue
-            raise
+    # مدل اصلی + جایگزین‌ها
+    candidates: list[str] = [settings.gemini_model]
+    for model in GEMINI_FALLBACK_MODELS:
+        if model != settings.gemini_model and model not in candidates:
+            candidates.append(model)
+
+    last_error: Exception | None = None
+
+    for model in candidates:
+        for attempt in range(2):  # یک تلاش مجدد روی 429
+            try:
+                response = await client.aio.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=config,
+                )
+                text = (response.text or "").strip()
+                if text:
+                    return text
+                logger.warning("مدل %s پاسخ خالی برگرداند — مدل بعدی امتحان می‌شود", model)
+                break
+            except Exception as exc:  # pragma: no cover
+                last_error = exc
+                logger.warning("خطای مدل %s: %s", model, exc)
+                if attempt == 0 and "429" in str(exc):
+                    await asyncio.sleep(2)
+                    continue
+                # اگر خطای «مدل نیست» باشد، مدل بعدی را امتحان کن
+                if _is_model_error(exc):
+                    break
+                # خطاهای دیگر (کلید، مجوز، شبکه) = بدون تغییر مدل بی‌فایده است
+                raise
+
+    raise RuntimeError(f"هیچ‌کدام از مدل‌های Gemini جواب نداد. آخرین خطا: {last_error}")
 
 
 # ═══ انتخاب تامین‌کننده ══════════════════════════════════════
