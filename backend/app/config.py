@@ -13,14 +13,19 @@ class Settings(BaseSettings):
     environment: str = "development"
 
     # ── هوش مصنوعی ─────────────────────────────────────────
-    ai_provider: str = "gemini"              # gemini (رایگان، پیشنهادی) | openai
-    temperature: float = 0.7
-    max_tokens: int = 1000                   # حداکثر توکن پاسخ — 1000 = سریع و کامل (نه قطع‌شده)
-    max_history_messages: int = 20           # حداکثر پیام‌های ارسالی به مدل (تاریخچه)
+    ai_provider: str = "melious"             # gemini (رایگان) | melious (پیشنهادی) | openai
+    temperature: float = 0.5                 # دما پایین = پاسخ سریع‌تر و دقیق‌تر
+    max_tokens: int = 700                    # پاسخ کوتاه‌تر = سریع‌تر (برای ۲-۴ جمله کافیه)
+    max_history_messages: int = 10           # تاریخچه کمتر = پردازش سریع‌تر (آخرین ۱۰ پیام)
 
     # تامین‌کننده Gemini — رایگان، بدون کارت (کلید از aistudio.google.com)
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash-lite"  # سریع و رایگان — موجود برای کاربران جدید (gemini-2.5-flash منسوخ شده)
+    gemini_model: str = "gemini-3.1-flash-lite"  # سریع و موجود — سهمیه رایگان جدا از مدل‌های دیگر
+
+    # تامین‌کننده Melious — OpenAI-compatible، مدل‌های متن‌باز اروپایی
+    melious_api_key: str = ""
+    melious_model: str = "deepseek-v4-flash"     # سریع و باکیفیت برای فارسی
+    melious_base_url: str = "https://api.melious.ai/v1"
 
     # تامین‌کننده OpenAI — گزینه پولی
     openai_api_key: str = ""
